@@ -1,5 +1,5 @@
 # CGNE
-Repository for the paper Efficient Probabilistic Modeling of Crystallization at Mesoscopic Scale: https://arxiv.org/abs/2405.16608
+Official repository for the paper Efficient Probabilistic Modeling of Crystallization at Mesoscopic Scale: https://arxiv.org/abs/2405.16608
 
 ## Requirements
 ### CGNE
