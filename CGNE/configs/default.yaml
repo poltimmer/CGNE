@@ -1,0 +1,40 @@
+general:
+  seed: 42
+  model_weight_artifact: null
+data:
+  stride: 10
+  data_dir: "./data"
+  val_split: 0.1
+  batch_size: 64
+  test_split: 0
+  num_workers: 8
+  train_split: 0.9
+  sequence_length: 30
+model:
+  decoder_dropout: "max(0.1, 1 - (epoch - 10)/10)"
+trainer:
+  devices: 1
+  max_epochs: 100
+  accelerator: "cuda"
+  fast_dev_run: false
+callback:
+  swa_callback:
+    swa_lrs: 0.01
+  imglog_callback:
+    num_samples: 32
+    log_every_n_epochs: 4
+    sample_from_first_n_samples: 512
+  metric_callback:
+    num_slices: 16
+    rollout_stop_margin: 5
+    train_subset_fraction: 0.1
+    val_log_every_n_epochs: 1
+    train_log_every_n_epochs: 1
+  rollout_callback:
+    num_steps: 128
+    num_samples: 8
+    log_every_n_epochs: 4
+    start_step_indices:
+    - 0
+  grad_clip_callback:
+    clip_value: 0.25
