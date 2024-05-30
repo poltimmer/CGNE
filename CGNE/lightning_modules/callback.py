@@ -3,7 +3,6 @@ from io import BytesIO
 from typing import Union, Optional
 
 import numpy as np
-import ot
 import torch
 import wandb
 from PIL import Image
@@ -18,7 +17,7 @@ from torch.utils.data import DataLoader, Subset
 from CGNE.dataset import reverse_transform_params, FirstAndLastHDF5Dataset
 from CGNE.lightning_modules.cgne import CGNE
 from CGNE.models.layers import BorderMask
-from CGNE.utils import param_list
+from CGNE.utils import param_list, expected_wasserstein_distance
 
 
 class ImageLogCallback(Callback):
@@ -248,44 +247,9 @@ class WassersteinDistanceMetricCallback(Callback):
             rollout_volumes = np.array(rollout_volumes)
             rollout_boundaries = np.array(rollout_boundaries)
 
-            # Compute Wasserstein distances
-            rho_min = np.min(rhos)
-            rho_max = np.max(rhos)
-
-            # Create equal-width bins for 'rho' between its min and max
-            rho_bins = np.linspace(rho_min, rho_max, num=self.num_slices + 1)
-
-            # Bin the 'rho' values
-            rho_bin_indices = np.digitize(rhos, rho_bins) - 1  # Get bin indices for each 'rho'
-
-            # Initialize a list to store Wasserstein distances
-            wasserstein_distances = []
-
-            # Compute Wasserstein distances for each bin
-            for bin_index in range(self.num_slices):
-                # Select the rows for the current bin
-                bin_mask = (rho_bin_indices == bin_index)
-
-                if np.any(bin_mask):
-                    # Extract GT and Rollout distributions for the current bin
-                    gt_distribution = np.stack((gt_volumes[bin_mask], gt_boundaries[bin_mask]), axis=-1)
-                    rollout_distribution = np.stack((rollout_volumes[bin_mask], rollout_boundaries[bin_mask]), axis=-1)
-
-                    # Uniform distribution weights for Wasserstein distance calculation
-                    gt_weights = np.ones((gt_distribution.shape[0],)) / gt_distribution.shape[0]
-                    rollout_weights = np.ones((rollout_distribution.shape[0],)) / rollout_distribution.shape[0]
-
-                    # Compute the cost matrix between the two distributions
-                    cost_matrix = ot.dist(gt_distribution, rollout_distribution, metric='euclidean')
-
-                    # Compute the Wasserstein distance using the EMD solver
-                    wasserstein_dist = ot.emd2(gt_weights, rollout_weights, cost_matrix)
-                    wasserstein_distances.append(wasserstein_dist)
-                else:
-                    print(f"No data in bin {bin_index} for the set")
-
-            # Log the mean Wasserstein distance for the current epoch
-            mean_wasserstein_distance = np.mean(wasserstein_distances)
-            pl_module.log(f"{split}/mean_wasserstein_distance", mean_wasserstein_distance, on_step=False, on_epoch=True)
+            ewd = expected_wasserstein_distance(rhos, gt_volumes, gt_boundaries, rollout_volumes, rollout_boundaries,
+                                                self.num_slices)
+            pl_module.log(f"{split}/expected_wasserstein_distance", ewd, on_step=False,
+                          on_epoch=True)
         if was_training:
             pl_module.train()

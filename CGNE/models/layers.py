@@ -121,33 +121,6 @@ class ResBlockDown(ResBlock):
         return super().forward(x)
 
 
-class SelfAttention(nn.Module):
-    """
-    From https://github.com/tcapelle/Diffusion-Models-pytorch/blob/main/modules.py
-    """
-
-    def __init__(self, channels):
-        super(SelfAttention, self).__init__()
-        self.channels = channels
-        self.mha = nn.MultiheadAttention(channels, 4, batch_first=True)
-        self.ln = nn.LayerNorm([channels])
-        self.ff_self = nn.Sequential(
-            nn.LayerNorm([channels]),
-            nn.Linear(channels, channels),
-            nn.GELU(),
-            nn.Linear(channels, channels),
-        )
-
-    def forward(self, x):
-        size = x.shape[-1]
-        x = x.view(-1, self.channels, size * size).swapaxes(1, 2)
-        x_ln = self.ln(x)
-        attention_value, _ = self.mha(x_ln, x_ln, x_ln)
-        attention_value = attention_value + x
-        attention_value = self.ff_self(attention_value) + attention_value
-        return attention_value.swapaxes(2, 1).view(-1, self.channels, size, size)
-
-
 class DoubleConv(nn.Module):
     """
     From https://github.com/tcapelle/Diffusion-Models-pytorch/blob/main/modules.py
@@ -220,9 +193,9 @@ class BorderMask(nn.Module):
 
     def __init__(self):
         super().__init__()
-        kernel = torch.tensor(data=[[1,  1, 0],
+        kernel = torch.tensor(data=[[1, 1, 0],
                                     [1, -6, 1],
-                                    [0,  1, 1]], dtype=torch.float32)
+                                    [0, 1, 1]], dtype=torch.float32)
         kernel = kernel.unsqueeze(0).unsqueeze(0)
         self.conv = nn.Conv2d(1, 1, kernel_size=3, padding=1, bias=False)
         self.conv.weight.data = kernel

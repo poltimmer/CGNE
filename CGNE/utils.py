@@ -187,27 +187,27 @@ def batch_distance_transform_cdt(batch):
         [np.expand_dims(distance_transform_cdt(im[0], metric=hex_dist_metric), axis=0) for im in batch_np])
     return torch.from_numpy(transformed).to(batch.device)
 
-def get_expected_wasserstein_distance(rho, gt_area, gt_boundary_length, area, boundary_length, num_slices=16):
+def expected_wasserstein_distance(rho, gt_area, gt_boundary_length, area, boundary_length, num_bins=16):
     """Given arrays for the conditioning variable, ground truth and rollout area and boundary length,
     compute the expected Wasserstein distance between the ground truth and rollout distributions."""
 
     # Compute Wasserstein distances
-    var_min = np.min(rho)
-    var_max = np.max(rho)
+    rho_min = np.min(rho)
+    rho_max = np.max(rho)
 
     # Create equal-width bins for the variable between its min and max
-    var_bins = np.linspace(var_min, var_max, num=num_slices + 1)
+    rho_bins = np.linspace(rho_min, rho_max, num=num_bins + 1)
 
     # Bin the variable
-    var_bin_indices = np.digitize(rho, var_bins) - 1  # Get bin indices for each 'rho'
+    rho_bin_indices = np.digitize(rho, rho_bins) - 1  # Get bin indices for each 'rho'
 
     # Initialize a list to store Wasserstein distances
     wasserstein_distances = []
 
     # Compute Wasserstein distances for each bin
-    for bin_index in range(num_slices):
+    for bin_index in range(num_bins):
         # Select the rows for the current bin
-        bin_mask = (var_bin_indices == bin_index)
+        bin_mask = (rho_bin_indices == bin_index)
 
         if np.any(bin_mask):
             # Extract GT and Rollout distributions for the current bin
