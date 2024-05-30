@@ -1,6 +1,6 @@
 import os
 import random
-from typing import List, Tuple, Optional
+from typing import List, Tuple
 
 import wandb
 from lightning import LightningDataModule
@@ -10,9 +10,9 @@ from CGNE.dataset import SequenceHDF5Dataset, padding_collate_fn
 
 
 class CGNEDataModule(LightningDataModule):
-    def __init__(self, data_dir: str, train_split: float = 0.6, val_split: float = 0.2, test_split: float = 0.2,
-                 batch_size: int = 16, num_workers: int = 0,
-                 sequence_length: int = 30, overlap: int = 1, stride: int = 1, y_scramble: Optional[str] = None):
+    def __init__(self, data_dir: str, train_split: float = 0.9, val_split: float = 0.1, test_split: float = 0.0,
+                 batch_size: int = 32, num_workers: int = 0,
+                 sequence_length: int = 30, overlap: int = 1, stride: int = 10):
         super().__init__()
 
         self.train_dataset = None
@@ -28,7 +28,6 @@ class CGNEDataModule(LightningDataModule):
         self.sequence_length = sequence_length
         self.overlap = overlap
         self.stride = stride
-        self.y_scramble = y_scramble
 
     def _get_class_split(self) -> Tuple[List[str], List[str], List[str]]:
         # Split entire sequences for train/val/test
@@ -61,7 +60,7 @@ class CGNEDataModule(LightningDataModule):
             })
 
         self._set_datasets(SequenceHDF5Dataset, sequence_length=self.sequence_length, overlap=self.overlap,
-                           stride=self.stride, use_step_number=False, y_scramble=self.y_scramble)
+                           stride=self.stride, use_step_number=False)
 
     def _set_datasets(self, dataset_class, **kwargs):
         self.train_dataset = dataset_class(self.data_dir, specific_classes=self.train_classes, **kwargs)

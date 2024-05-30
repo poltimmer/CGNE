@@ -9,7 +9,7 @@ from torch.nn import functional as F
 
 from CGNE.models.cgne import ApproximatePosterior, UNet, ConditionalPrior, SpatialZDecoder
 from CGNE.models.layers import linear
-from CGNE.utils.misc import get_reduce_fn, prefix_dict, samplewise_dropout
+from CGNE.utils import get_reduce_fn, prefix_dict, samplewise_dropout
 
 
 class CGNE(LightningModule):

@@ -1,3 +1,10 @@
+"""
+This contains a CUDA implementation of the Gravner-Griffeath 2D snowflake simulation as described in the paper:
+Gravner, J., & Griffeath, D. (2008). Modeling snow crystal growth II: A mesoscopic lattice map with plausible dynamics.
+Physica D: Nonlinear Phenomena, 237(3)
+https://www.sciencedirect.com/science/article/pii/S0167278907003387
+"""
+
 import copy
 import math
 import os

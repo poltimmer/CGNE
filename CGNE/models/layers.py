@@ -2,7 +2,7 @@ import torch
 from torch import nn, Tensor
 from torch.nn import functional as F
 
-from CGNE.utils.misc import round_hidden_dim
+from CGNE.utils import round_hidden_dim
 
 
 def get_dims(in_dim, out_dim, hidden_dim=128, n_layers=7):

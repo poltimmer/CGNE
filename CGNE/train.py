@@ -3,16 +3,15 @@ from datetime import timedelta
 from pathlib import Path
 
 import lightning as L
-import wandb
 import yaml
 from lightning.pytorch.callbacks import RichModelSummary, RichProgressBar, StochasticWeightAveraging
 from lightning_fabric import seed_everything
 
 from lightning_modules.callback import ImageLogCallback, RolloutSamplerCallback, GradientClippingCallback, \
     WassersteinDistanceMetricCallback
-from lightning_modules.datamodule import AutoRegressiveHDF5DataModule
+from lightning_modules.datamodule import CGNEDataModule
 from lightning_modules.cgne import CGNE
-from utils.misc import update_nested_dict, load_model_state_dict_from_artifact, CustomWandbLogger, CustomModelCheckpoint
+from CGNE.utils import update_nested_dict, load_model_state_dict_from_artifact, CustomWandbLogger, CustomModelCheckpoint
 
 
 def run(configs: list, wandb_resume_run_id: str, debug=False):
@@ -45,7 +44,7 @@ def run(configs: list, wandb_resume_run_id: str, debug=False):
 
     seed_everything(config["general"]["seed"])
 
-    data_module = AutoRegressiveHDF5DataModule(**config["data"])
+    data_module = CGNEDataModule(**config["data"])
     model = CGNE(**config["model"])
     imglog_callback = ImageLogCallback(**config["callback"]["imglog_callback"])
 

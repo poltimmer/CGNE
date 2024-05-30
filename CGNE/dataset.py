@@ -7,7 +7,7 @@ import torch
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset
 
-from utils.misc import ceildiv, param_list
+from CGNE.utils import ceildiv, param_list
 
 
 class SequenceHDF5Dataset(Dataset):

@@ -3,7 +3,7 @@ from torch import nn
 from torch.nn import functional as F
 
 from CGNE.models.layers import linear, ResBlockDown, ResBlock, ResBlockUp, get_dims, inject
-from CGNE.utils.misc import round_hidden_dim
+from CGNE.utils import round_hidden_dim
 
 
 class ConvEncoder(nn.Module):

@@ -18,7 +18,7 @@ from torch.utils.data import DataLoader, Subset
 from CGNE.dataset import reverse_transform_params, FirstAndLastHDF5Dataset
 from CGNE.lightning_modules.cgne import CGNE
 from CGNE.models.layers import BorderMask
-from CGNE.utils.misc import param_list
+from CGNE.utils import param_list
 
 
 class ImageLogCallback(Callback):
